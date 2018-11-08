@@ -1,6 +1,7 @@
 const path = require('path')
 const log = global.log || console
 require('dotenv').config({ path: path.join(process.cwd(), '.env') })
+const { importSchema } = require('graphql-import')
 
 const {
     NODE_ENV,
@@ -14,10 +15,9 @@ const isDebugging = DEBUG && DEBUG.length
     
     const fs = require('fs')
 
-    const { getSchema } = require('./graphql')
+    const typeDefs = importSchema(path.resolve('src/schema.graphql'))
     
-    const { typeDefs } = getSchema({ useMergeTypeDefs: true })
-    
+    // todo: check dist dir exists
     fs.writeFileSync(path.join(process.cwd(),'dist/typeDefs.gql'),typeDefs)
 
 })()
