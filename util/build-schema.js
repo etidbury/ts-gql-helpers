@@ -15,9 +15,9 @@ const isDebugging = DEBUG && DEBUG.length
     
     const fs = require('fs')
 
-    const typeDefs = importSchema(path.resolve('src/schema.graphql'))
+    const schema = importSchema(path.resolve('src/schema.graphql'))
     
     // todo: check dist dir exists
-    fs.writeFileSync(path.join(process.cwd(),'dist/typeDefs.gql'),typeDefs)
+    fs.writeFileSync(path.join(process.cwd(),'dist/schema.graphql'),schema)
 
 })()

@@ -58,7 +58,7 @@ module.exports.getSchema = (config)=>{
     // todo: check to make sure this is run via ts-node
 
     // const resolverDir = path.join(process.cwd(),isProd ? 'dist' : 'src', 'resolver')
-    const resolverDir = path.join(process.cwd(),'src', 'resolver')
+    const resolverDir = path.join(process.cwd(),isProd ? 'dist' : 'src', 'resolver')
 
     log.debug('> Scanning Resolver directory:',resolverDir)
 

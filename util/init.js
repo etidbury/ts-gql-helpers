@@ -2,10 +2,11 @@ const path = require('path')
 require('dotenv').config({ path: path.join(process.cwd(),'.env'), safe: true })
 
 const { ApolloServer } = require('apollo-server-express')
-const { importSchema } = require('graphql-import')
+const { importSchema,mergeSchemas } = require('graphql-import')
 const { getSchema } = require('./graphql')
 const express = require('express')
 const urljoin = require('url-join')
+const fs = require('fs')
 
 const {
     NODE_ENV,
@@ -22,7 +23,7 @@ const startServer = async ()=>{
 
     let Prisma
     try {
-        Prisma = require(path.join(process.cwd(),'./generated/prisma-client')).Prisma
+        Prisma = require(path.join(process.cwd(),isProd ? 'dist' : 'src', 'generated/prisma-client')).Prisma
     }catch(err){
         // todo: warn prisma generate etc...
         console.error(err)
@@ -30,16 +31,20 @@ const startServer = async ()=>{
     }
     
     const { resolvers } = getSchema()
-    const typeDefs = importSchema(path.resolve('src/schema.graphql'))
-    
+
+    const { fileLoader, mergeTypes,mergeResolvers } = require('merge-graphql-schemas')
+
     const server = new ApolloServer({
-        typeDefs,
+        typeDefs: mergeTypes([
+            require(path.join(process.cwd(),isProd ? 'dist' : 'src', 'generated/prisma-client/prisma-schema' + (isProd ? '.js' : '.ts'))).typeDefs
+            ,fs.readFileSync( path.join(process.cwd(),isProd ? 'dist' : 'src','schema.graphql') ).toString()
+        ]),
         resolvers,
         context: req => Object.assign(
             req ,
             {
                 prisma: new Prisma({
-                    typeDefs: path.join(process.cwd(),'src/generated/prisma.graphql'),
+                    // typeDefs,
                     endpoint: PRISMA_URL
                 })
             }
