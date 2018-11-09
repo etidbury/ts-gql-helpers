@@ -1,5 +1,5 @@
 const path = require('path')
-require('dotenv').config({ path: path.join(process.cwd(),'.env'), safe: true })
+require('dotenv-safe').config({ path: path.join(process.cwd(),'.env'), safe: true, debug: process.env.DEBUG })
 
 const { ApolloServer } = require('apollo-server-express')
 const { importSchema,mergeSchemas } = require('graphql-import')
