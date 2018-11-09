@@ -10,14 +10,18 @@
   "license": "ISC",
   "dependencies": {
     "@etidbury/jwtauth": "^0.0.5",
+    "apollo-server-express": "^2.2.0",
     "cors": "2.8.4",
     "dotenv": "^6.1.0",
+    "express": "^4.16.4",
+    "express-routemap": "^1.1.0",
     "graphql": "^14.0.2",
     "graphql-tools": "^4.0.2",
     "merge-graphql-schemas": "^1.5.7",
     "path": "^0.12.7",
     "pino": "^5.7.0",
     "pino-pretty": "^2.2.1",
+    "prisma-binding": "^2.1.6",
     "url-join": "4.0.0"
   },
   "devDependencies": {
