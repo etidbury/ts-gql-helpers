@@ -30,3 +30,4 @@ ENV PRISMA_CONFIG_PATH db.yml
 
 # Exposes Prisma port to 80/443 i.e. :4466 is not needed at the end of the server URL
 EXPOSE 4466
+

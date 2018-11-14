@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@etidbury/jwtauth": "^0.0.5",
+    "apollo-server": "^2.2.0",
     "apollo-server-express": "^2.2.0",
     "cors": "2.8.4",
     "dotenv": "^6.1.0",
@@ -18,6 +19,7 @@
     "express-routemap": "^1.1.0",
     "graphql": "^14.0.2",
     "graphql-tools": "^4.0.2",
+    "graphql-voyager": "^1.0.0-rc.26",
     "merge-graphql-schemas": "^1.5.7",
     "path": "^0.12.7",
     "pino": "^5.7.0",
