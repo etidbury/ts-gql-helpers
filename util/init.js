@@ -98,7 +98,7 @@ const startServer = async ()=>{
     const { express: voyagerMiddleware } = require('graphql-voyager/middleware')
     app.use('/voyager', voyagerMiddleware({ endpointUrl: '/graphql' }))
 
-    httpServer.listen({ port: PORT },() => {
+    httpServer.listen({ port: PORT },async () => {
     
         const url = `http://${host}:${port}`
 
@@ -113,7 +113,7 @@ const startServer = async ()=>{
             
                 const displayNotification = require('display-notification')
     
-                displayNotification({
+                await displayNotification({
                     title: require(path.join(process.cwd(),'package')).name + ' now up!',
                     subtitle: url,
                     sound: 'Bottle'
