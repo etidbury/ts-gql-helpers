@@ -1,9 +1,9 @@
 FROM node:10.5.0-alpine
 
-ENV PORT 80
+#ENV PORT 80
 ENV NODE_ENV production 
 
-EXPOSE 80
+EXPOSE ${PORT}
 
 RUN npm set audit false
 RUN npm -v && node -v && yarn -v
@@ -22,11 +22,7 @@ COPY . /var/www/
 
 RUN ls -la
 
-#RUN npm install --package-lock-only
-RUN yarn install --prod
-#RUN yarn add babel-cli
-
-#RUN yarn build
+RUN yarn build
 
 # Run app
 CMD yarn start
