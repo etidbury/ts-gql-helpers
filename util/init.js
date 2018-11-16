@@ -50,9 +50,11 @@ const startServer = async ()=>{
         resolvers,
         directiveResolvers: schemaDirectives
     })
-
+    
     const server = new ApolloServer({
         schema,
+        introspection: true, // todo: add env option to disable introspection?
+        playground: true,// todo: add env option to disable playground?
         context: req => Object.assign(
             req ,
             {
