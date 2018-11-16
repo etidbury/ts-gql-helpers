@@ -10,8 +10,14 @@ RUN npm -v && node -v && yarn -v
 
 RUN mkdir -p /var/www/
 
-WORKDIR /var/www/
+# use changes to package.json to force Docker not to use the cache
+# when we change our application's nodejs dependencies:
+ADD package.json /tmp/package.json
+ADD yarn.lock /tmp/yarn.lock
+RUN cd /tmp && yarn
+RUN mkdir -p /var/www/ && cp -a /tmp/node_modules /var/www/
 
+WORKDIR /var/www/
 COPY . /var/www/
 
 RUN ls -la
