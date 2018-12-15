@@ -10,6 +10,8 @@ const urljoin = require('url-join')
 // const fs = require('fs')
 const { makeExecutableSchema } = require('graphql-tools')
 
+const bodyParser = require('body-parser')
+
 const {
     DEBUG,
     NODE_ENV,
@@ -17,7 +19,8 @@ const {
     HOST,
     PORT,
     PRISMA_URL,
-    PRISMA_SECRET
+    PRISMA_SECRET,
+    BODY_PARSER_EXTENDED
 } = process.env
 
 const isProd = NODE_ENV === 'production'
@@ -72,6 +75,12 @@ const startServer = async ()=>{
     
     const app = express()
     
+    // parse application/x-www-form-urlencoded
+    app.use(bodyParser.urlencoded({ extended: !!BODY_PARSER_EXTENDED }))
+
+    // parse application/json
+    app.use(bodyParser.json())
+
     const routes = require( path.join(process.cwd(),isProd ? 'dist' : 'src','routes') )
 
     // todo: improve this logic to handle es6, commonjs and any other poss
