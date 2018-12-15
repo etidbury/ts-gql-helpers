@@ -1,6 +1,6 @@
 {
   "name": "@etidbury/ts-gql-helpers",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Helper functions for ts-gql",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -12,6 +12,7 @@
     "@etidbury/jwtauth": "^0.0.5",
     "apollo-server": "^2.2.0",
     "apollo-server-express": "^2.2.0",
+    "body-parser": "^1.18.3",
     "cors": "2.8.4",
     "dotenv": "^6.1.0",
     "dotenv-safe": "^6.1.0",
