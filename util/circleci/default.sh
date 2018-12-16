@@ -4,7 +4,11 @@ echo "Deployment v0.1.0"
 
 export GITHUB_REPO_URL="https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
 
-if [ "${CIRCLE_BRANCH}" == "staging" ]; then
+if [ "${CIRCLE_BRANCH}" == "development" ]; then
+
+    echo "Deployment for development not yet implemented..."
+
+elif [ "${CIRCLE_BRANCH}" == "staging" ]; then
 
     echo "Deployment for staging not yet implemented..."
 
@@ -70,8 +74,6 @@ else
 fi
 
 #### Deploy via Zeit Now
-echo "test a:${NOW_ALIAS} t:${NOW_TOKEN}"
-
 if [ -z "${NOW_ALIAS}" ] || [ -z "${NOW_TOKEN}" ] || [ -z "${NOW_TEAM}" ]; then
     echo 'Skipping Zeit Now Deploy ( NOW_ALIAS, NOW_TOKEN, NOW_TEAM not set )'        
 else
@@ -81,10 +83,11 @@ else
     
     # Save all env vars from shell environment to .env file
     printenv | awk '!/PATH=/ && !/HOME=/ && !/PORT=/ && !/HOST=/ && !/CWD=/ && !/PWD=/' > .env
-
+    
     # re-add deleted env vars
-    echo "MYSQL_HOST=$MYSQL_HOST" >> .env
-
+    if [ -z "${MYSQL_HOST}" ];then
+        echo "MYSQL_HOST=$MYSQL_HOST" >> .env
+    fi
     # Debug env vars
     cat .env
 
