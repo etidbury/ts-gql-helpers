@@ -82,12 +82,16 @@ else
 
     
     # Save all env vars from shell environment to .env file
-    printenv | awk '!/PATH=/ && !/HOME=/ && !/PORT=/ && !/HOST=/ && !/CWD=/ && !/PWD=/' > .env
+    printenv | awk '!/PATH=/ && !/HOME=/ && !/HOST=/ && !/CWD=/ && !/PWD=/' > .env
 
     # re-add deleted env vars
     if [ -z "${MYSQL_HOST}" ];then
         echo "MYSQL_HOST=$MYSQL_HOST" >> .env
     fi
+
+    # Ensure host is set for Zeit
+    echo "HOST=0.0.0.0" >> .env
+
     # Debug env vars
     cat .env
 
@@ -96,7 +100,7 @@ else
 
     echo "Zeit Now Deploying '${NOW_ALIAS}'..."
 
-    export NOW_TEMP_URL=$(now --token "${NOW_TOKEN}" -E -e HOST='0.0.0.0' -e PORT='3009' --dotenv --team "${NOW_TEAM}")
+    export NOW_TEMP_URL=$(now --token "${NOW_TOKEN}" --dotenv .env --team "${NOW_TEAM}")
 
     echo "Zeit Now Aliasing '${NOW_TEMP_URL}' to '${NOW_ALIAS}'"
 
