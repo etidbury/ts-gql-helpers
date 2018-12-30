@@ -1,6 +1,6 @@
 #!/bin/bash -exo pipefail
 
-echo "Deployment v0.1.0"
+echo "Deployment v0.1.2"
 
 export GITHUB_REPO_URL="https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
 
@@ -36,15 +36,41 @@ else
     git checkout ${TARGET_BRANCH} || git checkout -B ${TARGET_BRANCH}
     git reset --hard HEAD
     git fetch origin ${TARGET_BRANCH} || (git push -u origin ${TARGET_BRANCH} && echo "'${TARGET_BRANCH}' branch was created on remote")
-    git merge origin/${TARGET_BRANCH} || echo "No remote changes to merge"
+    
+    line_count=$(git diff origin/${TARGET_BRANCH}..${CIRCLE_BRANCH} | wc -l)
 
-    # merge remote target branch into local
-    git add .
-    git commit -am "Merge '${TARGET_BRANCH}' into local branch" || echo "Nothing to commit"
+    # check if theres changes between target branch and current branch
+    if [ $line_count -gt 0 ]; then
+        echo "Found ${line_count} line differences between 'origin/${TARGET_BRANCH}' and '${CIRCLE_BRANCH}'. Merging..."
 
+
+        if ! git merge origin/${TARGET_BRANCH} --no-commit; then
+
+            gitMergeDiff=$(git diff --diff-filter=U --exit-code --color *)
+
+            if [ -z "${SLACK_SERVICE_URL}" ]; then
+                echo "Sending merge failure message to Slack..."
+                curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Merge failed! Run *git checkout ${CIRCLE_BRANCH} && git pull origin ${TARGET_BRANCH}* to see/resolve conflict\"}" ${SLACK_SERVICE_URL}
+            fi #endif SLACK_SERVICE_URL
+
+            echo "${gitMergeDiff} \nMerge conflict found. Exiting..."
+
+            exit 1
+        fi #endif hasMergeFailed
+
+        # merge remote target branch into current branch
+        git add .
+        git commit -am "Merge 'origin/${TARGET_BRANCH}' into local '${TARGET_BRANCH}'" || echo "Nothing to commit"
+
+
+    fi
+    
+    
     # Clone branch being updated with a temporary branch
-    echo "Setup temporary branch: ${TMP_DEV_BRANCH}"
+    echo "Setup temporary branch: '${TMP_DEV_BRANCH}'"
     git checkout -B ${TMP_DEV_BRANCH}
+
+    echo "Merge '${CIRCLE_BRANCH}' into '${TMP_DEV_BRANCH}'"
     git merge ${CIRCLE_BRANCH}
 
     # Initialise project
@@ -57,11 +83,10 @@ else
 
     # test new changes
     yarn test:ci
-
-
+    
     # save new changes to target branch
     git add .
-    git commit -am "Merge new build changes (Build ${CIRCLE_BUILD_NUM})" || echo "Nothing to commit"
+    git commit -am "Merge new build changes from '${TMP_DEV_BRANCH}' (Build ${CIRCLE_BUILD_NUM})" || echo "Nothing to commit"
 
     git checkout ${TARGET_BRANCH}
     git merge ${TMP_DEV_BRANCH}
@@ -113,7 +138,10 @@ else
         now scale "${NOW_ALIAS}" "1" "${NOW_SCALE}" --token "${NOW_TOKEN}" --team "${NOW_TEAM}"
     fi
 
-    curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Deployed ${CIRCLE_PROJECT_REPONAME} at https://${NOW_ALIAS} (${NOW_TEMP_URL})\"}" https://hooks.slack.com/services/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
+    if [ -z "${SLACK_SERVICE_URL}" ]; then
+        curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Deployed ${CIRCLE_PROJECT_REPONAME} at https://${NOW_ALIAS} (${NOW_TEMP_URL})\"}" ${SLACK_SERVICE_URL}
+    fi
+    
 
 fi
 
