@@ -1,6 +1,6 @@
 {
   "name": "@etidbury/ts-gql-helpers",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "description": "Helper functions for ts-gql",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -21,11 +21,13 @@
     "graphql": "^14.0.2",
     "graphql-tools": "^4.0.2",
     "graphql-voyager": "^1.0.0-rc.26",
+    "jest": "^23.6.0",
     "merge-graphql-schemas": "^1.5.7",
     "path": "^0.12.7",
     "pino": "^5.7.0",
     "pino-pretty": "^2.2.1",
     "prisma-binding": "^2.1.6",
+    "ts-jest": "^23.10.5",
     "url-join": "4.0.0"
   },
   "devDependencies": {
