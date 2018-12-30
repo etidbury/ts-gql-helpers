@@ -1,38 +1,46 @@
 version: '3'
 services:
-  prisma:
-    container_name: prisma
-    image: prismagraphql/prisma:1.19
+  app:
+    depends_on:
+    - prisma
     restart: always
+    build:
+      dockerfile: ./node_modules/@etidbury/ts-gql-helpers/config/Dockerfile
+      # dockerfile: ./Dockerfile
+      context: ./
+      args:
+        PORT: ${PORT}
+    ports:
+    - "${PORT}:${PORT}"
+  prisma:
+    depends_on:
+    - mysql
+    restart: always
+    build:
+      dockerfile: ../node_modules/@etidbury/ts-gql-helpers/prisma/Dockerfile
+      context: ./database
+      args:
+        MYSQL_DATABASE: ${MYSQL_DATABASE}
+        MYSQL_HOST: ${MYSQL_HOST}
+        MYSQL_USER: ${MYSQL_USER}
+        MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+        PRISMA_MANAGEMENT_API_SECRET: ${PRISMA_MANAGEMENT_API_SECRET}
     ports:
     - "4466:4466"
-    depends_on:
-      - mysql
-    environment:
-      PRISMA_CONFIG: |
-        port: 4466
-        # uncomment the next line and provide the env var PRISMA_MANAGEMENT_API_SECRET=my-secret to activate cluster security
-        # managementApiSecret: my-secret
-        databases:
-          default:
-            connector: mysql
-            host: localhost
-            port: 3306
-            user: root
-            password: prisma
-            migrations: true
-            rawAccess: true
+    # environment:
+    #   - MYSQL_DATABASE='db-local'
+    #   - MYSQL_HOST='localhost'
+    #   - MYSQL_USER='root'
+    #   - MYSQL_PASSWORD='prisma'
   mysql:
-    ports:
-    - "3306:3306"
-    container_name: mysql
     image: mysql:5.7
-    restart: always
+    restart: on-failure
     environment:
-      MYSQL_ROOT_PASSWORD: prisma
-      MYSQL_ROOT_HOST: '%'
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - mysql:/var/lib/mysql
-    command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
 volumes:
   mysql:
