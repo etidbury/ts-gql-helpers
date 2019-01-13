@@ -45,18 +45,24 @@ const startServer = async ()=>{
 
     const resolvers = require( path.join(process.cwd(),isProd ? 'dist' : 'src','resolvers') )
 
-    const schemaDirectives = require( path.join(process.cwd(),isProd ? 'dist' : 'src','directives') )
+    const schemaDirectives = require( path.join(process.cwd(),isProd ? 'dist' : 'src','schemaDirectives') )
 
     // const { fileLoader, mergeTypes,mergeResolvers } = require('merge-graphql-schemas')
 
-    const schema = makeExecutableSchema({
+    // let schema = makeExecutableSchema({
+    //     typeDefs: importSchema('./src/schema.graphql'),
+    //     resolvers,
+    //     directiveResolvers: schemaDirectives
+    // })
+    
+    // schema = addDirectiveResolveFunctionsToSchema(schema,schemaDirectives)
+
+    const server = new ApolloServer({
+        // schemaDirectives,
         typeDefs: importSchema('./src/schema.graphql'),
         resolvers,
-        directiveResolvers: schemaDirectives
-    })
-    
-    const server = new ApolloServer({
-        schema,
+        schemaDirectives,
+        // schema,
         introspection: true, // todo: add env option to disable introspection?
         playground: true,// todo: add env option to disable playground?
         context: req => Object.assign(
