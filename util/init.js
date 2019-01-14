@@ -1,3 +1,4 @@
+
 const path = require('path')
 require('dotenv-safe').config({ safe: true, debug: process.env.DEBUG, allowEmptyValues: true })
 
@@ -8,9 +9,10 @@ const express = require('express')
 const { createServer } = require('http')
 const urljoin = require('url-join')
 // const fs = require('fs')
-const { makeExecutableSchema } = require('graphql-tools')
+// const { makeExecutableSchema } = require('graphql-tools')
 
 const bodyParser = require('body-parser')
+const cors = require('cors')
 
 const {
     DEBUG,
@@ -57,6 +59,8 @@ const startServer = async ()=>{
     
     // schema = addDirectiveResolveFunctionsToSchema(schema,schemaDirectives)
 
+    const jwtAuth = require( path.join(process.cwd(),isProd ? 'dist' : 'src','middleware/auth') )
+
     const server = new ApolloServer({
         // schemaDirectives,
         typeDefs: importSchema('./src/schema.graphql'),
@@ -65,9 +69,38 @@ const startServer = async ()=>{
         // schema,
         introspection: true, // todo: add env option to disable introspection?
         playground: true,// todo: add env option to disable playground?
-        context: req => Object.assign(
-            req ,
-            {
+        context: (ctx)=>{
+            const { req,res,connection } = ctx
+            // web socket subscriptions will return a connection
+            if (connection) {
+                // check connection for metadata
+                return ctx
+            }
+            
+            const userToken = ()=>new Promise((resolve, reject) => {
+                setTimeout(reject,120000)// todo: set timeout via env variable, also check resolved
+                jwtAuth(req, res, (e) => {
+                    if (req.user) {
+                        resolve(req.user)
+                    } else {
+                        resolve()
+                    }
+                })
+            })
+            
+            // jwtAuth({
+            //     secret: JWT_SECRET,
+            //     credentialsRequired: false,
+            // })(req, res, (e) => {
+            //     if (req.user) {
+            //         resolve(User.findOne({ where: { id: req.user.id } }))
+            //     } else {
+            //         resolve(null)
+            //     }
+            // }
+            return Object.assign(ctx,{ 
+                userToken,
+                // user,
                 db: new Prisma({
                     fragmentReplacements: extractFragmentReplacements(resolvers),
                     typeDefs,
@@ -75,13 +108,27 @@ const startServer = async ()=>{
                     secret: PRISMA_SECRET,
                     debug: DEBUG
                 }),
-                prismaClient
-            }
-        )
+                prismaClient 
+            })
+        }
+        // context: req => Object.assign(
+        //     req ,
+        //     {
+        //         db: new Prisma({
+        //             fragmentReplacements: extractFragmentReplacements(resolvers),
+        //             typeDefs,
+        //             endpoint: PRISMA_URL,
+        //             secret: PRISMA_SECRET,
+        //             debug: DEBUG
+        //         }),
+        //         prismaClient
+        //     }
+        // )
     })
     
     const app = express()
 
+    app.use(cors())
     // parse application/x-www-form-urlencoded
     app.use(bodyParser.urlencoded({ limit: BODY_PARSER_LIMIT , extended: !!BODY_PARSER_EXTENDED }))
 
@@ -110,7 +157,7 @@ const startServer = async ()=>{
     // const { checkJwt } = require('./middleware/jwt')
 
     // todo: update to scan all middlewares
-    app.use(require( path.join(process.cwd(),isProd ? 'dist' : 'src','middleware/auth') ))
+    app.use(jwtAuth)
 
     // todo: make env dependant?
     const { express: voyagerMiddleware } = require('graphql-voyager/middleware')
@@ -124,7 +171,7 @@ const startServer = async ()=>{
             require('express-routemap')(app)
         }
 
-        log.info(`🚀 Server ready at ${urljoin(url,server.graphqlPath)}`)
+        log.info(`🚀 Server ready at ${urljoin(url,server.graphqlPath)} ${!isProd && '(development)'}`)
         
         if (USE_NOTIFIER) {
             try {
