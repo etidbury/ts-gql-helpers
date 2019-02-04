@@ -81,11 +81,13 @@ const startServer = async ()=>{
             const userToken = ()=>new Promise((resolve, reject) => {
                 setTimeout(reject,120000)// todo: set timeout via env variable, also check resolved
                 jwtAuth(req, res, (e) => {
+                    
                     if (req.user) {
-                        resolve(req.user)
-                    } else {
-                        resolve()
+                        return resolve(req.user)
                     }
+
+                    reject()
+
                 })
             })
             
