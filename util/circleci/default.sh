@@ -1,6 +1,6 @@
 #!/bin/bash -exo pipefail
 
-echo "Deployment v0.1.4"
+echo "Deployment v0.0.38"
 
 export GITHUB_REPO_URL="https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
 
@@ -74,7 +74,7 @@ else
     git merge ${CIRCLE_BRANCH}
 
     # Initialise project
-    yarn
+    yarn install --frozen-lockfile
     yarn build
 
     # Initialise DB
@@ -120,12 +120,28 @@ else
     # Debug env vars
     cat .env
 
+    # rewrite now.json with env vars (note: this also deletes reserved env vars)
+    node ./node_modules/@etidbury/ts-gql-helpers/util/env-to-now-json.js
+
+    # Debug now.json
+    cat now.json
     # Debug files and permissions
     ls -la
 
+    # Debug total size
+    du -hs
+
+
+    #Reset pkgs to reduce size
+    rm -rf node_modules
+    yarn --prod --frozen-lockfile
+
+    # Debug total size after reducing size
+    du -hs
+
     echo "Zeit Now Deploying '${NOW_ALIAS}'..."
 
-    export NOW_TEMP_URL=$(now --token "${NOW_TOKEN}" --dotenv .env --team "${NOW_TEAM}")
+    export NOW_TEMP_URL=$(now --token "${NOW_TOKEN}" --team "${NOW_TEAM}")
 
     echo "Zeit Now Aliasing '${NOW_TEMP_URL}' to '${NOW_ALIAS}'"
 

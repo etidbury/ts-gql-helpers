@@ -1,6 +1,6 @@
 {
   "name": "@etidbury/ts-gql-helpers",
-  "version": "0.0.29",
+  "version": "0.0.31",
   "description": "Helper functions for ts-gql",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

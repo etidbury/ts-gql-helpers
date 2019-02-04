@@ -62,6 +62,7 @@ const startServer = async ()=>{
     const jwtAuth = require( path.join(process.cwd(),isProd ? 'dist' : 'src','middleware/auth') )
 
     const server = new ApolloServer({
+        debug: DEBUG,
         // schemaDirectives,
         typeDefs: importSchema('./src/schema.graphql'),
         resolvers,
@@ -98,7 +99,7 @@ const startServer = async ()=>{
             //         resolve(null)
             //     }
             // }
-            return Object.assign(ctx,{ 
+            return Object.assign(ctx,{
                 userToken,
                 // user,
                 db: new Prisma({
