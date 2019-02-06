@@ -79,14 +79,16 @@ const startServer = async ()=>{
             }
             
             const userToken = ()=>new Promise((resolve, reject) => {
-                setTimeout(reject,120000)// todo: set timeout via env variable, also check resolved
+                setTimeout(()=>{
+                    reject('Authentication timed out')
+                },120000)// todo: set timeout via env variable, also check resolved
                 jwtAuth(req, res, (e) => {
-                    
+
                     if (req.user) {
                         return resolve(req.user)
                     }
 
-                    reject()
+                    reject('Failed to extract user information from token')
 
                 })
             })
