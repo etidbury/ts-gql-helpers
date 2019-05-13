@@ -18,14 +18,15 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
-"@etidbury/jwtauth@^0.0.5":
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/@etidbury/jwtauth/-/jwtauth-0.0.5.tgz#7d9b514e92a8228ad7ecc65842f53de1bf8bc96f"
-  integrity sha512-/RPWEFxmXeC++0AuSD9mlsVMkIu0HIpoYuOYphFhsx2A8QsX7+AYRVByC2cgy3nRsgufttkUvslbTfJjA1Mxew==
+"@etidbury/jwtauth@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@etidbury/jwtauth/-/jwtauth-0.1.0.tgz#7af3fd4a26378425323d33a87e1c6f5eb63a2b48"
+  integrity sha512-//DwRNmVKAmxemmzuAarNN/Ct+TaPiny0K6/q8GAxffx761v3RInJgcJXRNrOMqTWaL4w6XKJsEo0/raQphlUg==
   dependencies:
     axios "0.18.0"
     babel-polyfill "^6.26.0"
     http-errors "^1.7.1"
+    js-cookie "^2.2.0"
     tpl-lib-helpers "^0.0.2"
     url-join "4.0.0"
 
@@ -2428,6 +2429,11 @@ jmespath@^0.15.0:
   version "0.15.0"
   resolved "https://registry.yarnpkg.com/jmespath/-/jmespath-0.15.0.tgz#a3f222a9aae9f966f5d27c796510e28091764217"
   integrity sha1-o/Iiqarp+Wb10nx5ZRDigJF2Qhc=
+
+js-cookie@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/js-cookie/-/js-cookie-2.2.0.tgz#1b2c279a6eece380a12168b92485265b35b1effb"
+  integrity sha1-Gywnmm7s44ChIWi5JIUmWzWx7/s=
 
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
