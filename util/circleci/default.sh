@@ -1,6 +1,6 @@
 #!/bin/bash -exo pipefail
 
-echo "Deployment v0.0.38"
+echo "Deployment v0.1.0"
 
 export GITHUB_REPO_URL="https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
 
@@ -73,6 +73,25 @@ else
     echo "Merge '${CIRCLE_BRANCH}' into '${TMP_DEV_BRANCH}'"
     git merge ${CIRCLE_BRANCH}
 
+
+      
+    # Save all env vars from shell environment to .env file
+    printenv | awk '!/PATH=/ && !/HOME=/ && !/HOST=/ && !/CWD=/ && !/PWD=/' > .env
+
+    # re-add deleted env vars
+    if [ -z "${MYSQL_HOST}" ];then
+        echo "MYSQL_HOST=$MYSQL_HOST" >> .env
+    fi
+
+    # Ensure host is set for Zeit
+    echo "HOST=0.0.0.0" >> .env
+
+    # Debug env vars
+    cat .env
+
+
+
+
     # Initialise project
     yarn install --frozen-lockfile
     yarn build
@@ -105,26 +124,12 @@ else
 
     set -exo pipefail
 
-    
-    # Save all env vars from shell environment to .env file
-    printenv | awk '!/PATH=/ && !/HOME=/ && !/HOST=/ && !/CWD=/ && !/PWD=/' > .env
-
-    # re-add deleted env vars
-    if [ -z "${MYSQL_HOST}" ];then
-        echo "MYSQL_HOST=$MYSQL_HOST" >> .env
-    fi
-
-    # Ensure host is set for Zeit
-    echo "HOST=0.0.0.0" >> .env
-
-    # Debug env vars
-    cat .env
-
     # rewrite now.json with env vars (note: this also deletes reserved env vars)
-    node ./node_modules/@etidbury/ts-gql-helpers/util/env-to-now-json.js
-
+    #node ./node_modules/@etidbury/ts-gql-helpers/util/env-to-now-json.js
+    
     # Debug now.json
-    cat now.json
+    #cat now.json
+
     # Debug files and permissions
     ls -la
 
