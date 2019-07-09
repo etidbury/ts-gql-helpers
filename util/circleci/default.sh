@@ -1,6 +1,6 @@
 #!/bin/bash -exo pipefail
 
-echo "Deployment v0.1.1"
+echo "Deployment v0.2.0"
 
 export GITHUB_REPO_URL="https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
 
@@ -74,35 +74,27 @@ else
     git merge ${CIRCLE_BRANCH}
 
 
-      
-    # # Save all env vars from shell environment to .env file
-    # printenv | awk '!/PATH=/ && !/HOME=/ && !/HOST=/ && !/CWD=/ && !/PWD=/' > .env
-
-    # # re-add deleted env vars
-    # if [ -z "${MYSQL_HOST}" ];then
-    #     echo "MYSQL_HOST=$MYSQL_HOST" >> .env
-    # fi
-
-    # # Ensure host is set for Zeit
-    # echo "HOST=0.0.0.0" >> .env
-
-    # # Debug env vars
-    # cat .env
-
-
-
-
     # Initialise project
     yarn install --frozen-lockfile
     yarn build
+
+    # rewrite now.json with env vars (note: this also deletes reserved env vars)
+    #node ./node_modules/@etidbury/ts-gql-helpers/util/env-to-now-json.js
+
+    # Debug now.json
+    #cat now.json
+    
+    node ./node_modules/@etidbury/ts-gql-helpers/util/prepend-env-vars-build.js
 
     # Initialise DB
     # yarn db:migrate
     # yarn db:seed
 
+
+
     # test new changes
     yarn test:ci
-    
+
     # save new changes to target branch
     git add .
     git commit -am "Merge new build changes from '${TMP_DEV_BRANCH}' (Build ${CIRCLE_BUILD_NUM})" || echo "Nothing to commit"
@@ -124,8 +116,25 @@ else
 
     set -exo pipefail
 
+    # Save all env vars from shell environment to .env file
+    printenv | awk '!/PATH=/ && !/HOME=/ && !/HOST=/ && !/CWD=/ && !/PWD=/' > .env
+
+    # re-add deleted env vars
+    if [ -z "${MYSQL_HOST}" ];then
+        echo "MYSQL_HOST=$MYSQL_HOST" >> .env
+    fi
+
+    # Ensure host is set for Zeit
+    echo "HOST=0.0.0.0" >> .env
+
+    # Debug env vars
+    cat .env
+
+
+
+
     # rewrite now.json with env vars (note: this also deletes reserved env vars)
-    #node ./node_modules/@etidbury/ts-gql-helpers/util/env-to-now-json.js
+    node ./node_modules/@etidbury/ts-gql-helpers/util/env-to-now-json.js
 
     # Debug now.json
     #cat now.json
@@ -138,29 +147,42 @@ else
 
 
     #Reset pkgs to reduce size
-    rm -rf node_modules
-    yarn --prod --frozen-lockfile
+    # rm -rf node_modules
+    # yarn --prod --frozen-lockfile
 
     # Debug total size after reducing size
     du -hs
 
-    echo "Zeit Now Deploying '${NOW_ALIAS}'..."
 
-    export NOW_TEMP_URL=$(now --token "${NOW_TOKEN}" --team "${NOW_TEAM}")
+    # Re-initialise project
+    yarn install --frozen-lockfile
+    yarn build
 
-    echo "Zeit Now Aliasing '${NOW_TEMP_URL}' to '${NOW_ALIAS}'"
 
-    now alias "${NOW_TEMP_URL}" "${NOW_ALIAS}" --token "${NOW_TOKEN}" --team "${NOW_TEAM}"
+    echo "Zeit Now Deploying..."
 
-    if [ -z "${NOW_SCALE}" ]; then
-        echo "Skipping scale command (NOW_SCALE not set)"
-    else
-        echo "Scaling ${NOW_ALIAS} [Min: 1, Max: ${NOW_SCALE}]"
-        now scale "${NOW_ALIAS}" "1" "${NOW_SCALE}" --token "${NOW_TOKEN}" --team "${NOW_TEAM}"
+
+    #export NOW_TEMP_URL=$(now --token "${NOW_TOKEN}" --scope "${NOW_TEAM}")
+    export NOW_TEMP_URL=$(now --token "${NOW_TOKEN}" --scope "${NOW_TEAM}" --target staging)
+
+    if [ -z "${NOW_TEMP_URL}" ]; then
+        echo "Failed to deploy"
+        exit 1
     fi
+    # echo "Zeit Now Aliasing '${NOW_TEMP_URL}' to '${NOW_ALIAS}'"
+
+    # now alias "${NOW_TEMP_URL}" "${NOW_ALIAS}" --token "${NOW_TOKEN}" --scope "${NOW_TEAM}"
+
+    # if [ -z "${NOW_SCALE}" ]; then
+    #     echo "Skipping scale command (NOW_SCALE not set)"
+    # else
+    #     echo "Scaling ${NOW_ALIAS} [Min: 1, Max: ${NOW_SCALE}]"
+    #     now scale "${NOW_ALIAS}" "1" "${NOW_SCALE}" --token "${NOW_TOKEN}" --scope "${NOW_TEAM}"
+    # fi
 
     if [ -n "${SLACK_SERVICE_URL}" ]; then
-        curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Deployed ${CIRCLE_PROJECT_REPONAME} at https://${NOW_ALIAS} (${NOW_TEMP_URL})\"}" ${SLACK_SERVICE_URL}
+        #curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Deployed ${CIRCLE_PROJECT_REPONAME} at https://${NOW_ALIAS} (${NOW_TEMP_URL})\"}" ${SLACK_SERVICE_URL}
+        curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Deployed ${CIRCLE_PROJECT_REPONAME} at ${NOW_TEMP_URL}\"}" ${SLACK_SERVICE_URL}
     fi
     
 

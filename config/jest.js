@@ -1,7 +1,7 @@
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
 const path = require('path')
-require('dotenv-safe').config({ path: path.join(process.cwd(),'.env'), safe: true, debug: process.env.DEBUG })
+require('dotenv').config({ path: path.join(process.cwd(),'.env'), safe: true, debug: process.env.DEBUG })
 
 module.exports = {
     // All imported modules in your tests should be mocked automatically

@@ -1,6 +1,6 @@
 const path = require('path')
 const fs = require('fs')
-require('dotenv-safe').config({ path: path.join(process.cwd(), '.env'), safe: true })
+require('dotenv').config({ path: path.join(process.cwd(), '.env'), safe: true })
 
 const NOW_JSON_FILE_PATH = path.join(process.cwd(),'now.json')
 const nowJson = require(NOW_JSON_FILE_PATH)
@@ -23,6 +23,15 @@ if (typeof nowJson.env !== 'object'){
 process.env.HOST = '0.0.0.0'
 
 nowJson.env = Object.assign(nowJson.env,process.env)
+
+// change build env
+if (typeof nowJson.build !== 'object'){
+    nowJson.build = {}
+}
+if (typeof nowJson.build.env !== 'object'){
+    nowJson.build.env = {}
+}
+nowJson.env = Object.assign(nowJson.build.env,process.env)
 
 fs.writeFileSync(NOW_JSON_FILE_PATH,JSON.stringify(nowJson,null, 4))
 
