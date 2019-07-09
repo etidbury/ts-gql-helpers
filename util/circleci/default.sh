@@ -1,6 +1,6 @@
 #!/bin/bash -exo pipefail
 
-echo "Deployment v0.3.0"
+echo "Deployment v0.3.1"
 
 export GITHUB_REPO_URL="https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
 
@@ -167,7 +167,7 @@ else
 
 
     #export NOW_TEMP_URL=$(now --token "${NOW_TOKEN}" --scope "${NOW_TEAM}")
-    export NOW_TEMP_URL=$(now --token "${NOW_TOKEN}" --scope "${NOW_TEAM}" --target staging)
+    export NOW_TEMP_URL=$(now --token "${NOW_TOKEN}" --scope "${NOW_TEAM}" --target production)
 
     if [ -z "${NOW_TEMP_URL}" ]; then
         echo "Failed to deploy"
