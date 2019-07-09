@@ -1,6 +1,6 @@
 #!/bin/bash -exo pipefail
 
-echo "Deployment v0.2.0"
+echo "Deployment v0.3.0"
 
 export GITHUB_REPO_URL="https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
 
@@ -81,10 +81,12 @@ else
     # rewrite now.json with env vars (note: this also deletes reserved env vars)
     #node ./node_modules/@etidbury/ts-gql-helpers/util/env-to-now-json.js
 
+    node ./node_modules/@etidbury/ts-gql-helpers/util/prepend-env-vars-build.js
+
     # Debug now.json
     #cat now.json
     
-    node ./node_modules/@etidbury/ts-gql-helpers/util/prepend-env-vars-build.js
+  
 
     # Initialise DB
     # yarn db:migrate
@@ -134,7 +136,7 @@ else
 
 
     # rewrite now.json with env vars (note: this also deletes reserved env vars)
-    node ./node_modules/@etidbury/ts-gql-helpers/util/env-to-now-json.js
+    #node ./node_modules/@etidbury/ts-gql-helpers/util/env-to-now-json.js
 
     # Debug now.json
     #cat now.json
@@ -158,6 +160,8 @@ else
     yarn install --frozen-lockfile
     yarn build
 
+
+    node ./node_modules/@etidbury/ts-gql-helpers/util/prepend-env-vars-build.js
 
     echo "Zeit Now Deploying..."
 
