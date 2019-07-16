@@ -1,6 +1,6 @@
 const path = require('path')
 
-process.chdir(process.cwd())
+// process.chdir(process.cwd())
 
 require('dotenv-safe').config({
     debug: process.env.DEBUG,

@@ -97,6 +97,10 @@ else
     # test new changes
     yarn test:ci
 
+    #ignore pkg changes
+    git checkout HEAD -- yarn.lock
+    git checkout HEAD -- package.json
+
     # save new changes to target branch
     git add .
     git commit -am "Merge new build changes from '${TMP_DEV_BRANCH}' (Build ${CIRCLE_BUILD_NUM})" || echo "Nothing to commit"
