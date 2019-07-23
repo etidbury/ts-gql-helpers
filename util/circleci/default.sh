@@ -164,8 +164,9 @@ else
     yarn install --frozen-lockfile
     yarn build
 
-
     node ./node_modules/@etidbury/ts-gql-helpers/util/prepend-env-vars-build.js
+
+    node ./node_modules/@etidbury/ts-gql-helpers/util/update-alias-now-json.js
 
     echo "Zeit Now Deploying..."
 
