@@ -1,8 +1,23 @@
 #!/bin/bash -exo pipefail
 
-echo "Deployment v0.3.1"
+## Used merge strategy designed by:
+## @ref: https://stackoverflow.com/questions/173919/is-there-a-theirs-version-of-git-merge-s-ours/4969679#4969679 Paul Pladijs's answer
+
+
+echo "Deployment v0.4.0"
 
 export GITHUB_REPO_URL="https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
+
+
+cd ../
+mv ./project ./${CIRCLE_PROJECT_REPONAME}
+cd ./${CIRCLE_PROJECT_REPONAME}
+
+echo "New working directory:"
+pwd
+
+
+
 
 if [ "${CIRCLE_BRANCH}" == "development" ]; then
 
@@ -37,46 +52,58 @@ else
     git reset --hard HEAD
     git fetch origin ${TARGET_BRANCH} || (git push -u origin ${TARGET_BRANCH} && echo "'${TARGET_BRANCH}' branch was created on remote")
     
-    line_count=$(git diff origin/${TARGET_BRANCH}..${CIRCLE_BRANCH} | wc -l)
+    # line_count=$(git diff origin/${TARGET_BRANCH}..${CIRCLE_BRANCH} | wc -l)
 
-    # check if theres changes between target branch and current branch
-    if [ $line_count -gt 0 ]; then
-        echo "Found ${line_count} line differences between 'origin/${TARGET_BRANCH}' and '${CIRCLE_BRANCH}'. Merging..."
-
-
-        if ! git merge origin/${TARGET_BRANCH} --no-commit; then
-
-            gitMergeDiff=$(git diff --diff-filter=U --exit-code --color *)
-
-            if [ -n "${SLACK_SERVICE_URL}" ]; then
-                echo "Sending merge failure message to Slack..."
-                curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Merge failed! Run *git checkout ${CIRCLE_BRANCH} && git pull origin ${TARGET_BRANCH}* to see/resolve conflict (${CIRCLE_BUILD_URL})\"}" ${SLACK_SERVICE_URL}
-            fi #endif SLACK_SERVICE_URL
-
-            echo "${gitMergeDiff} \nMerge conflict found. Exiting..."
-
-            exit 1
-        fi #endif hasMergeFailed
-
-        # merge remote target branch into current branch
-        git add .
-        git commit -am "Merge 'origin/${TARGET_BRANCH}' into local '${TARGET_BRANCH}'" || echo "Nothing to commit"
+    # # check if theres changes between target branch and current branch
+    # if [ $line_count -gt 0 ]; then
+    #     echo "Found ${line_count} line differences between 'origin/${TARGET_BRANCH}' and '${CIRCLE_BRANCH}'. Merging..."
 
 
-    fi
+    #     if ! git merge origin/${TARGET_BRANCH} --no-commit; then
+
+    #         gitMergeDiff=$(git diff --diff-filter=U --exit-code --color *)
+
+    #         if [ -n "${SLACK_SERVICE_URL}" ]; then
+    #             echo "Sending merge failure message to Slack..."
+    #             curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Merge failed! Run *git checkout ${CIRCLE_BRANCH} && git pull origin ${TARGET_BRANCH}* to see/resolve conflict (${CIRCLE_BUILD_URL})\"}" ${SLACK_SERVICE_URL}
+    #         fi #endif SLACK_SERVICE_URL
+
+    #         echo "${gitMergeDiff} \nMerge conflict found. Exiting..."
+
+    #         exit 1
+    #     fi #endif hasMergeFailed
+
+    #     # merge remote target branch into current branch
+    #     git add .
+    #     git commit -am "Merge 'origin/${TARGET_BRANCH}' into local '${TARGET_BRANCH}'" || echo "Nothing to commit"
+
+
+    # fi
     
     
+    
+    # make merge commit but without conflicts!!
+    # the contents of 'ours' will be discarded later
+    git merge -s ours ${CIRCLE_BRANCH}
+
     # Clone branch being updated with a temporary branch
     echo "Setup temporary branch: '${TMP_DEV_BRANCH}'"
+    
     git checkout -B ${TMP_DEV_BRANCH}
 
-    echo "Merge '${CIRCLE_BRANCH}' into '${TMP_DEV_BRANCH}'"
-    git merge ${CIRCLE_BRANCH}
+    # get contents of working tree and index to the one of CIRCLE_BRANCH
+    git reset --hard ${CIRCLE_BRANCH}
+
+
+    # reset to our merged commit but 
+    # keep contents of working tree and index
+    git reset --soft ${TMP_DEV_BRANCH}
 
 
     # Initialise project
-    yarn install --frozen-lockfile
+    yarn install --frozen-lockfile --production=false
     yarn build
+
 
     # rewrite now.json with env vars (note: this also deletes reserved env vars)
     #node ./node_modules/@etidbury/ts-gql-helpers/util/env-to-now-json.js
@@ -92,7 +119,7 @@ else
     # yarn db:migrate
     # yarn db:seed
 
-
+    yarn add @types/jest
 
     # test new changes
     yarn test:ci
@@ -103,15 +130,16 @@ else
 
     # save new changes to target branch
     git add .
-    git commit -am "Merge new build changes from '${TMP_DEV_BRANCH}' (Build ${CIRCLE_BUILD_NUM})" || echo "Nothing to commit"
+    git commit -am "Merge new build changes from '${CIRCLE_BRANCH}' -> '${TARGET_BRANCH}' (Build ${CIRCLE_BUILD_NUM})" || echo "Nothing to commit"
 
-    git checkout ${TARGET_BRANCH}
-    git merge ${TMP_DEV_BRANCH}
+    # git checkout ${TARGET_BRANCH}
+    # git merge ${TMP_DEV_BRANCH}
 
     git push origin ${TARGET_BRANCH}
 
-    # delete tmp branch
-    git branch -d ${TMP_DEV_BRANCH}
+    #delete tmp branch (this throws error as TMP_DEV_BRANCH is active branch at this point, 
+    #  so dont include unless doing other git stuff later in CI workflow)
+    #git branch -d ${TMP_DEV_BRANCH}
 
 fi
 
@@ -157,7 +185,7 @@ else
     # yarn --prod --frozen-lockfile
 
     # Debug total size after reducing size
-    du -hs
+    #du -hs
 
 
     # Re-initialise project
@@ -172,12 +200,13 @@ else
 
 
     #export NOW_TEMP_URL=$(now --token "${NOW_TOKEN}" --scope "${NOW_TEAM}")
-    export NOW_TEMP_URL=$(now --token "${NOW_TOKEN}" --scope "${NOW_TEAM}" --target production)
+    # export NOW_TEMP_URL=$(now --token "${NOW_TOKEN}" --scope "${NOW_TEAM}" --target production)
 
-    if [ -z "${NOW_TEMP_URL}" ]; then
-        echo "Failed to deploy"
-        exit 1
-    fi
+    now --token "${NOW_TOKEN}" --scope "${NOW_TEAM}" --target production
+    # if [ -z "${NOW_TEMP_URL}" ]; then
+    #     echo "Failed to deploy"
+    #     exit 1
+    # fi
     # echo "Zeit Now Aliasing '${NOW_TEMP_URL}' to '${NOW_ALIAS}'"
 
     # now alias "${NOW_TEMP_URL}" "${NOW_ALIAS}" --token "${NOW_TOKEN}" --scope "${NOW_TEAM}"

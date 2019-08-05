@@ -3,6 +3,7 @@ const fs = require('fs')
 require('dotenv').config({ path: path.join(process.cwd(), '.env'), safe: true })
 
 const NOW_JSON_FILE_PATH = path.join(process.cwd(),'now.json')
+const ENV_EXAMPLE_FILE_PATH = path.join(process.cwd(),'.env.example')
 const nowJson = require(NOW_JSON_FILE_PATH)
 
 if (!nowJson || typeof nowJson !== 'object'){
@@ -13,16 +14,26 @@ if (typeof nowJson.env !== 'object'){
     nowJson.env = {}
 }
 
+const envExampleFileContents = fs.readFileSync(ENV_EXAMPLE_FILE_PATH,'utf-8')
+
+const processEnvVarsFilteredByEnvExample = {}
+
+for (let processVarName in process.env){
+    if (envExampleFileContents.indexOf(`${processVarName}=`) > -1){
+        processEnvVarsFilteredByEnvExample[processVarName] = process.env[processVarName]
+    }
+}
+
 // '!/PATH=/ && !/HOME=/ && !/HOST=/ && !/CWD=/ && !/PWD=/'
-// delete reserved env vars
-['PATH','HOME','CWD','PWD'].forEach((envName)=>{
+// delete reserved env vars and any sensitive
+['PATH','HOME','CWD','PWD','GITHUB_TOKEN','GITHUB_REPO_URL'].forEach((envName)=>{
     delete process.env[envName]
 })
 
 // Enforce Host is set to 0.0.0.0 for Zeit Now
-process.env.HOST = '0.0.0.0'
+processEnvVarsFilteredByEnvExample.HOST = '0.0.0.0'
 
-nowJson.env = Object.assign(nowJson.env,process.env)
+nowJson.env = Object.assign(nowJson.env,processEnvVarsFilteredByEnvExample)
 
 // change build env
 if (typeof nowJson.build !== 'object'){
@@ -31,7 +42,7 @@ if (typeof nowJson.build !== 'object'){
 if (typeof nowJson.build.env !== 'object'){
     nowJson.build.env = {}
 }
-nowJson.env = Object.assign(nowJson.build.env,process.env)
+nowJson.env = Object.assign(nowJson.build.env,processEnvVarsFilteredByEnvExample)
 
 fs.writeFileSync(NOW_JSON_FILE_PATH,JSON.stringify(nowJson,null, 4))
 
