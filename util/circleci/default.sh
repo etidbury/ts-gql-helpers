@@ -119,7 +119,7 @@ else
     # yarn db:migrate
     # yarn db:seed
 
-    yarn add @types/jest
+    # yarn add @types/jest
 
     # test new changes
     yarn test:ci
