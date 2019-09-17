@@ -19,7 +19,7 @@ module.exports = ({
     apolloTypeDefs,
     prismaClient,
     prismaTypeDefs,
-    cache
+    cache = null
 })=>{
     
     const {
