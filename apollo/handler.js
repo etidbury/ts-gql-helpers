@@ -18,7 +18,8 @@ module.exports = ({
     jwtAuth,
     apolloTypeDefs,
     prismaClient,
-    prismaTypeDefs
+    prismaTypeDefs,
+    cache
 })=>{
     
     const {
@@ -67,6 +68,7 @@ module.exports = ({
         resolvers,
         introspection: true,
         playground: true,
+        cache,
         cors: {
             origin: '*',
             methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
