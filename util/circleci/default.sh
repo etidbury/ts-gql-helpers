@@ -4,7 +4,7 @@
 ## @ref: https://stackoverflow.com/questions/173919/is-there-a-theirs-version-of-git-merge-s-ours/4969679#4969679 Paul Pladijs's answer
 
 
-echo "Deployment v0.4.0"
+echo "Deployment v0.5.0"
 
 export GITHUB_REPO_URL="https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
 
@@ -220,9 +220,46 @@ else
 
     if [ -n "${SLACK_SERVICE_URL}" ]; then
         #curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Deployed ${CIRCLE_PROJECT_REPONAME} at https://${NOW_ALIAS} (${NOW_TEMP_URL})\"}" ${SLACK_SERVICE_URL}
-        curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Deployed ${CIRCLE_PROJECT_REPONAME} at ${NOW_TEMP_URL}\"}" ${SLACK_SERVICE_URL}
+        curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Zeit Deployed ${CIRCLE_PROJECT_REPONAME} at ${NOW_TEMP_URL}\"}" ${SLACK_SERVICE_URL}
     fi
     
 
 fi
 
+
+#### Deploy via SSH_DC
+if [ -z "${USE_SSH_DC_DEPLOY}" ]||[ -z "${SSH_DC_HOST}" ] || [ -z "${SSH_DC_USER}" ] ||[ -z "${SSH_DC_TARGET_DIR}" ]||[ -z "${SSH_DC_TARGET_BRANCH}" ]; then
+    echo 'Skipping SSH DC Deploy ( USE_SSH_DC_DEPLOY, SSH_DC_USER, SSH_DC_HOST, SSH_DC_TARGET_DIR, SSH_DC_TARGET_BRANCH not all set )'   
+
+    #if intended to use ssh_dc_deploy, printenv to help debug what env vars missing
+    if [ -n "${USE_SSH_DC_DEPLOY}" ]; then
+        printenv
+    fi
+else
+
+    set -exo pipefail
+
+    ssh ${SSH_DC_USER}@${SSH_DC_HOST} /bin/bash << EOF
+        set -exo pipefail
+
+        cd ${SSH_DC_TARGET_DIR}
+         
+        if [ -n "${USE_SSH_DC_HARD}" ]; then
+             docker-compose stop ${SSH_DC_TARGET_CONTAINER}
+             docker system prune --force
+        fi
+
+        git checkout ${SSH_DC_TARGET_BRANCH}
+        git pull origin ${SSH_DC_TARGET_BRANCH}
+
+        docker-compose up --force-recreate -d --build ${SSH_DC_TARGET_CONTAINER}
+        docker system prune --force
+
+EOF
+
+
+    if [ -n "${SLACK_SERVICE_URL}" ]; then
+        #curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Deployed ${CIRCLE_PROJECT_REPONAME} at https://${NOW_ALIAS} (${NOW_TEMP_URL})\"}" ${SLACK_SERVICE_URL}
+        curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"SSH DC Deployed ${CIRCLE_PROJECT_REPONAME}\"}" ${SLACK_SERVICE_URL}
+    fi
+fi
