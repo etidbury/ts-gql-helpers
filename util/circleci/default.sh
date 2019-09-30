@@ -4,7 +4,7 @@
 ## @ref: https://stackoverflow.com/questions/173919/is-there-a-theirs-version-of-git-merge-s-ours/4969679#4969679 Paul Pladijs's answer
 
 
-echo "Deployment v0.5.0"
+echo "Deployment v0.6.1"
 
 export GITHUB_REPO_URL="https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
 
@@ -122,7 +122,7 @@ else
     # yarn add @types/jest
 
     # test new changes
-    yarn test:ci
+    yarn ci:test
 
     #ignore pkg changes
     git checkout HEAD -- yarn.lock
@@ -236,7 +236,7 @@ if [ -z "${USE_SSH_DC_DEPLOY}" ]||[ -z "${SSH_DC_HOST}" ] || [ -z "${SSH_DC_USER
         printenv
     fi
 else
-
+    
     set -exo pipefail
 
     ssh ${SSH_DC_USER}@${SSH_DC_HOST} /bin/bash << EOF
@@ -256,6 +256,22 @@ else
         docker system prune --force
 
 EOF
+
+    if [ "${CIRCLE_BRANCH}" == "development" ]; then
+
+        echo "Post deployment for development not yet implemented..."
+
+    elif [ "${CIRCLE_BRANCH}" == "staging" ]; then
+
+        echo "Post deployment for staging not yet implemented..."
+
+    elif [ "${CIRCLE_BRANCH}" == "production" ]; then
+
+        echo "Post deployment for production not yet implemented..."
+        
+    else
+        yarn ci:post_deploy:test
+    fi
 
 
     if [ -n "${SLACK_SERVICE_URL}" ]; then
