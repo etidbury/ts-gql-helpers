@@ -4,7 +4,7 @@
 ## @ref: https://stackoverflow.com/questions/173919/is-there-a-theirs-version-of-git-merge-s-ours/4969679#4969679 Paul Pladijs's answer
 
 
-echo "Deployment v0.6.1"
+echo "Deployment v0.6.2"
 
 export GITHUB_REPO_URL="https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
 
@@ -135,7 +135,7 @@ else
     # git checkout ${TARGET_BRANCH}
     # git merge ${TMP_DEV_BRANCH}
 
-    git push origin ${TARGET_BRANCH}
+    
 
     #delete tmp branch (this throws error as TMP_DEV_BRANCH is active branch at this point, 
     #  so dont include unless doing other git stuff later in CI workflow)
@@ -271,6 +271,8 @@ EOF
         
     else
         yarn ci:post_deploy:test
+
+        git push origin ${TARGET_BRANCH}
     fi
 
 
