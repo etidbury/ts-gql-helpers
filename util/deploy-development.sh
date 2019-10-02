@@ -1,4 +1,6 @@
-echo "Deploy development script v0.0.1"
+#!/bin/bash -exo pipefail
+
+echo "Deploy development script v0.0.2"
 
 export TARGET_BRANCH=$1
 export CURRENT_BRANCH=$(git branch | grep \* | cut -d ' ' -f2)
@@ -21,16 +23,60 @@ if [ ${TARGET_BRANCH} = "staging" ] || [ ${TARGET_BRANCH} = "production" ]; then
     if [[ $REPLY =~ ^[Yy]$ ]]
     then
         # do dangerous stuff
-        git branch -d ${TARGET_BRANCH}
-        git checkout -b ${TARGET_BRANCH}
-        git pull origin ${TARGET_BRANCH}
+        # git branch -d ${TARGET_BRANCH}
+        # git checkout -b ${TARGET_BRANCH}
+        # git pull origin ${TARGET_BRANCH}
+        # git pull origin development
+        # git push origin ${TARGET_BRANCH}
+
+        # git checkout ${CURRENT_BRANCH}
+        
+        # # delete branch after use
+        # git branch -d ${TARGET_BRANCH}
+
+
+        ##---------------------------------------
+
+
+
+        export TMP_DEV_BRANCH="development-build-deploy"
+
+        git branch -D ${TARGET_BRANCH}
+        git branch -D ${TMP_DEV_BRANCH}
+
+
+        git checkout development
         git pull origin development
+
+        # Setup and sync target branch
+        git checkout -B ${TARGET_BRANCH}
+        git pull origin ${TARGET_BRANCH}
+
+        git reset --hard HEAD
+        # || (git push -u origin ${TARGET_BRANCH} && echo "'${TARGET_BRANCH}' branch was created on remote")
+        
+        # make merge commit but without conflicts!!
+        # the contents of 'ours' will be discarded later
+        git merge -s ours development
+
+        # Clone branch being updated with a temporary branch
+        echo "Setup temporary branch: '${TMP_DEV_BRANCH}'"
+        
+        git checkout -B ${TMP_DEV_BRANCH}
+
+        # get contents of working tree and index to the development branch
+        git reset --hard development
+
+        # reset to our merged commit but 
+        # keep contents of working tree and index
+        git reset --soft ${TMP_DEV_BRANCH}
+
         git push origin ${TARGET_BRANCH}
 
+        git branch -D ${TARGET_BRANCH}
+        git branch -D ${TMP_DEV_BRANCH}
+
         git checkout ${CURRENT_BRANCH}
-        
-        # delete branch after use
-        git branch -d ${TARGET_BRANCH}
 
     else
         echo "Operation cancelled!"
