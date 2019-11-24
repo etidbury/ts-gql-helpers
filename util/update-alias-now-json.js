@@ -1,3 +1,5 @@
+// Version 0.1.0
+
 const path = require('path')
 const fs = require('fs')
 require('dotenv').config({ path: path.join(process.cwd(), '.env'), safe: true })
