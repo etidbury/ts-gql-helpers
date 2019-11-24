@@ -4,7 +4,7 @@
 ## @ref: https://stackoverflow.com/questions/173919/is-there-a-theirs-version-of-git-merge-s-ours/4969679#4969679 Paul Pladijs's answer
 
 
-echo "Deployment v0.6.2"
+echo "Deployment v0.6.3"
 
 export GITHUB_REPO_URL="https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
 
@@ -257,27 +257,30 @@ else
 
 EOF
 
-    if [ "${CIRCLE_BRANCH}" == "development" ]; then
-
-        echo "Post deployment for development not yet implemented..."
-
-    elif [ "${CIRCLE_BRANCH}" == "staging" ]; then
-
-        echo "Post deployment for staging not yet implemented..."
-
-    elif [ "${CIRCLE_BRANCH}" == "production" ]; then
-
-        echo "Post deployment for production not yet implemented..."
-        
-    else
-        yarn ci:post_deploy:test
-
-        git push origin ${TARGET_BRANCH}
-    fi
+fi
 
 
-    if [ -n "${SLACK_SERVICE_URL}" ]; then
-        #curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Deployed ${CIRCLE_PROJECT_REPONAME} at https://${NOW_ALIAS} (${NOW_TEMP_URL})\"}" ${SLACK_SERVICE_URL}
-        curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"SSH DC Deployed ${CIRCLE_PROJECT_REPONAME}\"}" ${SLACK_SERVICE_URL}
-    fi
+
+if [ "${CIRCLE_BRANCH}" == "development" ]; then
+
+    echo "Post deployment for development not yet implemented..."
+
+elif [ "${CIRCLE_BRANCH}" == "staging" ]; then
+
+    echo "Post deployment for staging not yet implemented..."
+
+elif [ "${CIRCLE_BRANCH}" == "production" ]; then
+
+    echo "Post deployment for production not yet implemented..."
+    
+else
+    yarn ci:post_deploy:test
+
+    git push origin ${TARGET_BRANCH}
+fi
+
+
+if [ -n "${SLACK_SERVICE_URL}" ]; then
+    #curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Deployed ${CIRCLE_PROJECT_REPONAME} at https://${NOW_ALIAS} (${NOW_TEMP_URL})\"}" ${SLACK_SERVICE_URL}
+    curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"SSH DC Deployed ${CIRCLE_PROJECT_REPONAME}\"}" ${SLACK_SERVICE_URL}
 fi
