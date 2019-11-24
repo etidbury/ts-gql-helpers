@@ -4,7 +4,7 @@
 ## @ref: https://stackoverflow.com/questions/173919/is-there-a-theirs-version-of-git-merge-s-ours/4969679#4969679 Paul Pladijs's answer
 
 
-echo "Deployment v0.6.3"
+echo "Deployment v0.6.5"
 
 export GITHUB_REPO_URL="https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
 
@@ -189,8 +189,8 @@ else
 
 
     # Re-initialise project
-    yarn install --frozen-lockfile
-    yarn build
+    # yarn install --frozen-lockfile
+    # yarn build
 
     node ./node_modules/@etidbury/ts-gql-helpers/util/prepend-env-vars-build.js
 
