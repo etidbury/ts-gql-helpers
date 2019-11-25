@@ -4,7 +4,7 @@
 ## @ref: https://stackoverflow.com/questions/173919/is-there-a-theirs-version-of-git-merge-s-ours/4969679#4969679 Paul Pladijs's answer
 
 
-echo "Deployment v0.6.5"
+echo "Deployment v0.7.0"
 
 export GITHUB_REPO_URL="https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
 
@@ -108,7 +108,9 @@ else
     # rewrite now.json with env vars (note: this also deletes reserved env vars)
     #node ./node_modules/@etidbury/ts-gql-helpers/util/env-to-now-json.js
 
+    if [ -z "${PREPEND_ENV_VARS_BUILD}" ]; then
     node ./node_modules/@etidbury/ts-gql-helpers/util/prepend-env-vars-build.js
+    fi
 
     # Debug now.json
     #cat now.json
