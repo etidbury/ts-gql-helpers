@@ -4,7 +4,7 @@
 ## @ref: https://stackoverflow.com/questions/173919/is-there-a-theirs-version-of-git-merge-s-ours/4969679#4969679 Paul Pladijs's answer
 
 
-echo "Deployment v0.7.0"
+echo "Deployment v0.7.2"
 
 export GITHUB_REPO_URL="https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
 
@@ -108,9 +108,6 @@ else
     # rewrite now.json with env vars (note: this also deletes reserved env vars)
     #node ./node_modules/@etidbury/ts-gql-helpers/util/env-to-now-json.js
 
-    if [ -z "${PREPEND_ENV_VARS_BUILD}" ]; then
-    node ./node_modules/@etidbury/ts-gql-helpers/util/prepend-env-vars-build.js
-    fi
 
     # Debug now.json
     #cat now.json
@@ -130,10 +127,7 @@ else
     git checkout HEAD -- yarn.lock
     git checkout HEAD -- package.json
 
-    # save new changes to target branch
-    git add .
-    git commit -am "Merge new build changes from '${CIRCLE_BRANCH}' -> '${TARGET_BRANCH}' (Build ${CIRCLE_BUILD_NUM})" || echo "Nothing to commit"
-
+  
     # git checkout ${TARGET_BRANCH}
     # git merge ${TMP_DEV_BRANCH}
 
@@ -194,7 +188,11 @@ else
     # yarn install --frozen-lockfile
     # yarn build
 
+    
+    if [ -z "${PREPEND_ENV_VARS_BUILD}" ]; then
     node ./node_modules/@etidbury/ts-gql-helpers/util/prepend-env-vars-build.js
+    fi
+
 
     node ./node_modules/@etidbury/ts-gql-helpers/util/update-alias-now-json.js
 
@@ -277,6 +275,13 @@ elif [ "${CIRCLE_BRANCH}" == "production" ]; then
     
 else
     yarn ci:post_deploy:test
+
+
+    # save new changes to target branch
+    git add .
+    git commit -am "Merge new build changes from '${CIRCLE_BRANCH}' -> '${TARGET_BRANCH}' (Build ${CIRCLE_BUILD_NUM})" || echo "Nothing to commit"
+
+
 
     git push origin ${TARGET_BRANCH}
 fi
