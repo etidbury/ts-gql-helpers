@@ -3,8 +3,9 @@
 ## Used merge strategy designed by:
 ## @ref: https://stackoverflow.com/questions/173919/is-there-a-theirs-version-of-git-merge-s-ours/4969679#4969679 Paul Pladijs's answer
 
+export S_VERSION="v0.7.3";
 
-echo "Deployment v0.7.2"
+echo "Deployment ${S_VERSION}"
 
 export GITHUB_REPO_URL="https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
 
@@ -189,12 +190,12 @@ else
     # yarn build
 
     
-    if [ -z "${PREPEND_ENV_VARS_BUILD}" ]; then
-    node ./node_modules/@etidbury/ts-gql-helpers/util/prepend-env-vars-build.js
+    if [ -n "${PREPEND_ENV_VARS_BUILD}" ]; then
+    curl -s https://raw.githubusercontent.com/etidbury/ts-gql-helpers/${S_VERSION}/util/prepend-env-vars-build.js | node
     fi
 
 
-    node ./node_modules/@etidbury/ts-gql-helpers/util/update-alias-now-json.js
+    curl -s https://raw.githubusercontent.com/etidbury/ts-gql-helpers/${S_VERSION}/util/update-alias-now-json.js | node
 
     echo "Zeit Now Deploying..."
 
@@ -202,7 +203,7 @@ else
     #export NOW_TEMP_URL=$(now --token "${NOW_TOKEN}" --scope "${NOW_TEAM}")
     # export NOW_TEMP_URL=$(now --token "${NOW_TOKEN}" --scope "${NOW_TEAM}" --target production)
 
-    now --token "${NOW_TOKEN}" --scope "${NOW_TEAM}" --target production
+    now --token "${NOW_TOKEN}" --scope "${NOW_TEAM}" --prod
     # if [ -z "${NOW_TEMP_URL}" ]; then
     #     echo "Failed to deploy"
     #     exit 1
