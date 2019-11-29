@@ -3,7 +3,7 @@
 ## Used merge strategy designed by:
 ## @ref: https://stackoverflow.com/questions/173919/is-there-a-theirs-version-of-git-merge-s-ours/4969679#4969679 Paul Pladijs's answer
 
-export S_VERSION="v0.7.4";
+export S_VERSION="v0.7.6";
 
 echo "Deployment ${S_VERSION}"
 
@@ -161,6 +161,8 @@ else
     # Debug env vars
     cat .env
 
+    #hotfix: deps for env-to-now-json.js script
+    yarn add dotenv
 
     # rewrite now.json with env vars (note: this also deletes reserved env vars)
     curl -s https://raw.githubusercontent.com/etidbury/ts-gql-helpers/${S_VERSION}/util/env-to-now-json.js | node
