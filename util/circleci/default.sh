@@ -3,7 +3,7 @@
 ## Used merge strategy designed by:
 ## @ref: https://stackoverflow.com/questions/173919/is-there-a-theirs-version-of-git-merge-s-ours/4969679#4969679 Paul Pladijs's answer
 
-export T_VERSION="v0.7.7";
+export T_VERSION="v0.7.8";
 
 echo "Deployment ${T_VERSION}"
 
@@ -102,7 +102,9 @@ else
 
 
     # Initialise project
-    yarn install --frozen-lockfile --production=false
+    yarn install --frozen-lockfile --production=false --no-bin-links
+
+
     yarn build
 
 
