@@ -23,15 +23,17 @@ pwd
 if [ "${CIRCLE_BRANCH}" == "development" ]; then
 
     echo "Deployment for development not yet implemented..."
+    yarn install --frozen-lockfile --production=false
 
 elif [ "${CIRCLE_BRANCH}" == "staging" ]; then
 
     echo "Deployment for staging not yet implemented..."
 
+    yarn install --frozen-lockfile --production=false
 elif [ "${CIRCLE_BRANCH}" == "production" ]; then
 
     echo "Deployment for production not yet implemented..."
-    
+    yarn install --frozen-lockfile --production=false
 else
 
     set -exo pipefail
@@ -102,7 +104,7 @@ else
 
 
     # Initialise project
-    yarn install --frozen-lockfile --production=false --no-bin-links
+    yarn install --frozen-lockfile --production=false
 
 
     yarn build
