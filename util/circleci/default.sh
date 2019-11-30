@@ -3,9 +3,9 @@
 ## Used merge strategy designed by:
 ## @ref: https://stackoverflow.com/questions/173919/is-there-a-theirs-version-of-git-merge-s-ours/4969679#4969679 Paul Pladijs's answer
 
-export S_VERSION="v0.7.6";
+export T_VERSION="v0.7.7";
 
-echo "Deployment ${S_VERSION}"
+echo "Deployment ${T_VERSION}"
 
 export GITHUB_REPO_URL="https://${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git"
 
@@ -161,11 +161,14 @@ else
     # Debug env vars
     cat .env
 
-    #hotfix: deps for env-to-now-json.js script
-    yarn add dotenv
+    #hotfix: for deps
+    #yarn add @etidbury/ts-gql-helpers@0.7.6
+
+    #hotfix: for deps
+    yarn install --frozen-lockfile --production=false
 
     # rewrite now.json with env vars (note: this also deletes reserved env vars)
-    curl -s https://raw.githubusercontent.com/etidbury/ts-gql-helpers/${S_VERSION}/util/env-to-now-json.js | node
+    curl -s https://raw.githubusercontent.com/etidbury/ts-gql-helpers/${T_VERSION}/util/env-to-now-json.js | node
 
     # Debug now.json
     #cat now.json
@@ -191,11 +194,11 @@ else
 
     
     if [ -n "${PREPEND_ENV_VARS_BUILD}" ]; then
-    curl -s https://raw.githubusercontent.com/etidbury/ts-gql-helpers/${S_VERSION}/util/prepend-env-vars-build.js | node
+    curl -s https://raw.githubusercontent.com/etidbury/ts-gql-helpers/${T_VERSION}/util/prepend-env-vars-build.js | node
     fi
 
 
-    curl -s https://raw.githubusercontent.com/etidbury/ts-gql-helpers/${S_VERSION}/util/update-alias-now-json.js | node
+    curl -s https://raw.githubusercontent.com/etidbury/ts-gql-helpers/${T_VERSION}/util/update-alias-now-json.js | node
 
     echo "Zeit Now Deploying..."
 
