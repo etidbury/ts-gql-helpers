@@ -3,7 +3,7 @@
 ## Used merge strategy designed by:
 ## @ref: https://stackoverflow.com/questions/173919/is-there-a-theirs-version-of-git-merge-s-ours/4969679#4969679 Paul Pladijs's answer
 
-export T_VERSION="v0.7.8";
+export T_VERSION="v0.7.9";
 
 echo "Deployment ${T_VERSION}"
 
@@ -165,9 +165,6 @@ else
 
     #hotfix: for deps
     #yarn add @etidbury/ts-gql-helpers@0.7.6
-
-    #hotfix: for deps
-    yarn install --frozen-lockfile --production=false
 
     # rewrite now.json with env vars (note: this also deletes reserved env vars)
     curl -s https://raw.githubusercontent.com/etidbury/ts-gql-helpers/${T_VERSION}/util/env-to-now-json.js | node
