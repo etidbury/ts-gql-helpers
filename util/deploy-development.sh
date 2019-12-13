@@ -1,6 +1,6 @@
 #!/bin/bash -exo pipefail
 
-echo "Deploy development script v0.0.2"
+echo "Deploy development script v0.0.3"
 
 export TARGET_BRANCH=$1
 export CURRENT_BRANCH=$(git branch | grep \* | cut -d ' ' -f2)
@@ -39,7 +39,7 @@ if [ ${TARGET_BRANCH} = "staging" ] || [ ${TARGET_BRANCH} = "production" ]; then
 
 
 
-        export TMP_DEV_BRANCH="development-build-deploy"
+        export TMP_DEV_BRANCH="development-build-deploy2"
 
         git branch -D ${TARGET_BRANCH}
         git branch -D ${TMP_DEV_BRANCH}
@@ -73,10 +73,12 @@ if [ ${TARGET_BRANCH} = "staging" ] || [ ${TARGET_BRANCH} = "production" ]; then
 
         git push origin ${TARGET_BRANCH}
 
+        git checkout ${CURRENT_BRANCH}
+        
         git branch -D ${TARGET_BRANCH}
         git branch -D ${TMP_DEV_BRANCH}
 
-        git checkout ${CURRENT_BRANCH}
+   
 
     else
         echo "Operation cancelled!"

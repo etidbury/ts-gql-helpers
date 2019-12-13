@@ -255,7 +255,8 @@ else
         fi
 
         git checkout ${SSH_DC_TARGET_BRANCH}
-        git pull origin ${SSH_DC_TARGET_BRANCH}
+        git fetch origin/${SSH_DC_TARGET_BRANCH}
+        git reset --hard origin/${SSH_DC_TARGET_BRANCH}
 
         docker-compose up --force-recreate -d --build ${SSH_DC_TARGET_CONTAINER}
         docker system prune --force
