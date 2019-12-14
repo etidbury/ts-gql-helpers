@@ -3,7 +3,7 @@
 ## Used merge strategy designed by:
 ## @ref: https://stackoverflow.com/questions/173919/is-there-a-theirs-version-of-git-merge-s-ours/4969679#4969679 Paul Pladijs's answer
 
-export T_VERSION="v0.7.10";
+export T_VERSION="v0.7.11";
 
 echo "Deployment ${T_VERSION}"
 
