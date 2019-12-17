@@ -3,7 +3,7 @@
 ## Used merge strategy designed by:
 ## @ref: https://stackoverflow.com/questions/173919/is-there-a-theirs-version-of-git-merge-s-ours/4969679#4969679 Paul Pladijs's answer
 
-export T_VERSION="v0.7.11";
+export T_VERSION="v0.7.12";
 
 echo "Deployment ${T_VERSION}"
 
@@ -144,6 +144,8 @@ else
 
 fi
 
+echo "Continuing to deploy...";
+
 #### Deploy via Zeit Now
 if [ -z "${NOW_ALIAS}" ] || [ -z "${NOW_TOKEN}" ] || [ -z "${NOW_TEAM}" ]; then
     echo 'Skipping Zeit Now Deploy ( NOW_ALIAS, NOW_TOKEN, NOW_TEAM not set )'        
@@ -231,6 +233,7 @@ else
 
 fi
 
+echo "Continuing to ssh dc deploy...";
 
 #### Deploy via SSH_DC
 if [ -z "${USE_SSH_DC_DEPLOY}" ]||[ -z "${SSH_DC_HOST}" ] || [ -z "${SSH_DC_USER}" ] ||[ -z "${SSH_DC_TARGET_DIR}" ]||[ -z "${SSH_DC_TARGET_BRANCH}" ]; then
@@ -280,6 +283,9 @@ elif [ "${CIRCLE_BRANCH}" == "production" ]; then
     echo "Post deployment for production not yet implemented..."
     
 else
+
+    echo "Continuing to ssh dc deploy2...";
+
     yarn ci:post_deploy:test
 
 
