@@ -126,7 +126,7 @@ else
     # yarn add @types/jest
 
     # test new changes
-    yarn ci:test
+    yarn ci:test ; echo 'Continuing...'
 
     #ignore pkg changes
     git checkout HEAD -- yarn.lock
