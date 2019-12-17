@@ -1,5 +1,7 @@
 #!/bin/bash -exo pipefail
 
+if [ true  ] ; then
+
 ## Used merge strategy designed by:
 ## @ref: https://stackoverflow.com/questions/173919/is-there-a-theirs-version-of-git-merge-s-ours/4969679#4969679 Paul Pladijs's answer
 
@@ -36,7 +38,7 @@ elif [ "${CIRCLE_BRANCH}" == "production" ]; then
     yarn install --frozen-lockfile --production=false
 else
 
-    #set -exo pipefail
+    set -exo pipefail
 
     export TMP_DEV_BRANCH="${CIRCLE_BRANCH}-build-${CIRCLE_BUILD_NUM}"
     export TARGET_BRANCH="development"
@@ -302,4 +304,7 @@ fi
 if [ -n "${SLACK_SERVICE_URL}" ]; then
     #curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Deployed ${CIRCLE_PROJECT_REPONAME} at https://${NOW_ALIAS} (${NOW_TEMP_URL})\"}" ${SLACK_SERVICE_URL}
     curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"SSH DC Deployed ${CIRCLE_PROJECT_REPONAME}\"}" ${SLACK_SERVICE_URL}
+fi
+
+
 fi
