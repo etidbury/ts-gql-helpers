@@ -36,7 +36,7 @@ elif [ "${CIRCLE_BRANCH}" == "production" ]; then
     yarn install --frozen-lockfile --production=false
 else
 
-    set -exo pipefail
+    #set -exo pipefail
 
     export TMP_DEV_BRANCH="${CIRCLE_BRANCH}-build-${CIRCLE_BUILD_NUM}"
     export TARGET_BRANCH="development"
