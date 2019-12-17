@@ -136,7 +136,7 @@ else
     # git checkout ${TARGET_BRANCH}
     # git merge ${TMP_DEV_BRANCH}
 
-    
+    echo 'Continuing2...'
 
     #delete tmp branch (this throws error as TMP_DEV_BRANCH is active branch at this point, 
     #  so dont include unless doing other git stuff later in CI workflow)
