@@ -107,7 +107,7 @@ else
     yarn install --frozen-lockfile --production=false
 
 
-    yarn build
+    yarn build ; echo 'Continuing...'
 
 
     # rewrite now.json with env vars (note: this also deletes reserved env vars)
